@@ -1,0 +1,123 @@
+---
+title: "idm_lab_report_1"
+date: "2023-01-23"
+output: github_document
+---
+
+## Document Setup
+```{r setup, message=FALSE}
+library(tidyverse)
+library(datasets)
+library(ggplot2)
+library(patchwork)
+```
+
+```{r load-in-data, message=FALSE}
+ili_df = read_csv(file = "./data/da_ILINet.csv") %>%
+  janitor::clean_names()
+ili_df
+```
+
+```{r q1-1}
+ili_df %>% colnames()
+ili_df %>% nrow()
+ili_df %>% ncol()
+```
+```{r q1-2}
+ili_df %>% select(date, massachusetts)
+```
+```{r q1-3}
+ili_df[2, 6]
+ili_df[30, 5:14]
+ili_df[,5]
+ili_df[36, "new_york_city"]
+```
+```{r q1-4}
+max(ili_df$"new_york_city")
+mean(ili_df$"new_york_city", na.rm = TRUE)
+summary(ili_df$"new_york_city")
+```
+
+```{r q1-5}
+ili_df %>%
+  select(date, new_york_city) %>%
+  filter(new_york_city == 4383)
+```
+
+```{r q2}
+nyc_plot = ili_df %>%
+  ggplot(aes(x = date, y = new_york_city)) +
+  geom_line() +
+  labs(title = "Weekly ILI in New York City Over Time",
+       subtitle = "For the 2018-2019 flu season",
+          x = "Date",
+          y = "Incidence of ILI (per 100,000)") +
+  theme(plot.title = element_text(size = 11, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 7, hjust = 0.5),
+        legend.position = "none")
+```
+
+```{r q3}
+ny_df = ili_df %>%
+  select(date, new_york, new_york_city) %>%
+  pivot_longer(new_york:new_york_city,
+    names_to = "region", 
+    values_to = "incidence")
+
+ny_plot = ny_df %>%
+  ggplot(aes(x = date, y = incidence, color = region)) +
+  geom_line() +
+  labs(title = "Weekly ILI in New York Over Time (2018-2019 flu season)",
+       subtitle = "New York State vs New York City",
+          x = "Date",
+          y = "Incidence of ILI (per 100,000)") +
+  theme(plot.title = element_text(size = 11, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 7, hjust = 0.5))
+ny_df
+ny_plot
+```
+
+```{r q4}
+pivot_df = ili_df %>%
+  pivot_longer(alabama:wyoming,
+               names_to = "region", 
+               values_to = "incidence")
+
+box_plot = pivot_df %>%
+  ggplot(aes(x = date, y = incidence, group=format(date))) +
+  geom_boxplot() +
+  labs(title = "Distribution of ILI Incidence in the U.S. Over Time",
+       subtitle = "2018-2019 flu season",
+          x = "Date",
+          y = "Incidence of ILI (per 100,000)") +
+  theme(plot.title = element_text(size = 11, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 7, hjust = 0.5))
+
+box_plot
+```
+
+```{r q5}
+fn_sol_quadratic = function(a, b, c)
+{
+  a <- as.complex(a)
+  soln <- c((-b + sqrt(b^2 - 4*a*c)) / (2*a),
+              (-b - sqrt(b^2 - 4*a*c)) / (2*a))
+  if(all(Im(soln) == 0)) soln <- Re(soln)
+  if(soln[1] == soln[2]) return(soln[1])
+  soln
+}
+
+fn_sol_quadratic(a = 2, b = 10, c = 3)
+fn_sol_quadratic(a = 5, b = -6, c = 1)
+```
+
+```{r q6}
+
+```
+
